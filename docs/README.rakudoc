@@ -1,0 +1,30 @@
+=begin pod
+
+=head1 NAME
+
+B<USPS::ZipPlus4> - Provides USPS validation of Zip+4 number given a valid US address with only a Zip number
+
+
+=head1 SYNOPSIS
+
+=begin code :lang<raku>
+
+use USPS::ZipPlus4;
+
+=end code
+
+=head1 DESCRIPTION
+
+B<USPS::ZipPlus4> is ...
+
+=head1 AUTHOR
+
+Tom Browder <tbrowder@acm.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+© 2025 Tom Browder
+
+This library is free software; you may redistribute it or modify it under the Artistic License 2.0.
+
+=end pod

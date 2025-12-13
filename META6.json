@@ -1,0 +1,25 @@
+{
+  "auth": "zef:tbrowder",
+  "authors": [
+    "Tom Browder"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "Provides USPS validation of Zip+4 number given a valid US address with only a Zip number\n",
+  "license": "Artistic-2.0",
+  "name": "USPS::ZipPlus4",
+  "perl": "6.d",
+  "provides": {
+    "USPS::ZipPlus4": "lib/USPS/ZipPlus4.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
