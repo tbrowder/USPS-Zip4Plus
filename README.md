@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/tbrowder/USPS-Zip4Plus/actions/workflows/linux.yml/badge.svg)](https://github.com/tbrowder/USPS-Zip4Plus/actions) [![Actions Status](https://github.com/tbrowder/USPS-Zip4Plus/actions/workflows/macos.yml/badge.svg)](https://github.com/tbrowder/USPS-Zip4Plus/actions) [![Actions Status](https://github.com/tbrowder/USPS-Zip4Plus/actions/workflows/windows.yml/badge.svg)](https://github.com/tbrowder/USPS-Zip4Plus/actions)
+
 NAME
 ====
 
@@ -14,6 +16,15 @@ DESCRIPTION
 ===========
 
 **USPS::ZipPlus4** is ...
+
+Authentication
+--------------
+
+Set your USPS Web Tools USERID as an environment variable:
+
+    export USPS_WEBTOOLS_USERID="your-userid"
+
+The ZIP+4 lookup API uses only the USERID.
 
 AUTHOR
 ======

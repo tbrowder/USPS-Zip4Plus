@@ -17,6 +17,15 @@ use USPS::ZipPlus4;
 
 B<USPS::ZipPlus4> is ...
 
+=head2 Authentication
+
+Set your USPS Web Tools USERID as an environment variable:
+
+    export USPS_WEBTOOLS_USERID="your-userid"
+
+The ZIP+4 lookup API uses only the USERID.
+
+
 =head1 AUTHOR
 
 Tom Browder <tbrowder@acm.org>

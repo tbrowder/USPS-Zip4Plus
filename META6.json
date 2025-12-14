@@ -6,6 +6,8 @@
   "build-depends": [
   ],
   "depends": [
+    "HTTP::UserAgent",
+    "XML::Fast"
   ],
   "description": "Provides USPS validation of Zip+4 number given a valid US address with only a Zip number\n",
   "license": "Artistic-2.0",
@@ -16,7 +18,7 @@
   },
   "resources": [
   ],
-  "source-url": "",
+  "source-url": "https://github.com/tbrowder/USPS-Zip4Plus.git",
   "tags": [
   ],
   "test-depends": [

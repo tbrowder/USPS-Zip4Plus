@@ -1,0 +1,10 @@
+<ZipCodeLookupResponse>
+  <Address ID="0">
+    <Address2>1600 PENNSYLVANIA AVE NW</Address2>
+    <Address1></Address1>
+    <City>WASHINGTON</City>
+    <State>DC</State>
+    <Zip5>20500</Zip5>
+    <Zip4>0003</Zip4>
+  </Address>
+</ZipCodeLookupResponse>
