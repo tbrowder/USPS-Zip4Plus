@@ -2,17 +2,6 @@ unit module USPS::ZipPlus4;
 
 use HTTP::UserAgent;
 
-sub tag-text(Str $xml, Str $tag) returns Str
-{
-    my $m = $xml.match(/ '<' $tag '>' ( .*? ) '</' $tag '>' /, :s);
-    return $m ?? $m[0].Str.trim !! '';
-}
-
-sub has-tag(Str $xml, Str $tag) returns Bool
-{
-    $xml.contains("<{$tag}>") or $xml.contains("<{$tag} ");
-}
-
 class X::USPS::ZipPlus4 is Exception
 {
     has Str $.message;
@@ -120,4 +109,15 @@ XML
             zip4    => $zip4,
         );
     }
+}
+
+sub tag-text(Str $xml, Str $tag) returns Str
+{
+    my $m = $xml.match(/ '<' $tag '>' ( .*? ) '</' $tag '>' /, :s);
+    return $m ?? $m[0].Str.trim !! '';
+}
+
+sub has-tag(Str $xml, Str $tag) returns Bool
+{
+    $xml.contains("<{$tag}>") or $xml.contains("<{$tag} ");
 }
