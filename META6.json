@@ -6,7 +6,7 @@
   "build-depends": [
   ],
   "depends": [
-    "HTTP::UserAgent",
+    "HTTP::UserAgent"
   ],
   "description": "Provides USPS validation of Zip+4 number given a valid US address with only a Zip number\n",
   "license": "Artistic-2.0",
