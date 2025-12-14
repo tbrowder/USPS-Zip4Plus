@@ -1,7 +1,17 @@
 unit module USPS::ZipPlus4;
 
 use HTTP::UserAgent;
-use XML::Fast;
+
+sub tag-text(Str $xml, Str $tag) returns Str
+{
+    my $m = $xml.match(/ '<' $tag '>' ( .*? ) '</' $tag '>' /, :s);
+    return $m ?? $m[0].Str.trim !! '';
+}
+
+sub has-tag(Str $xml, Str $tag) returns Bool
+{
+    $xml.contains("<{$tag}>") or $xml.contains("<{$tag} ");
+}
 
 class X::USPS::ZipPlus4 is Exception
 {
@@ -22,7 +32,7 @@ class Result
 class Client
 {
     has Str $.userid;
-    has Num $.throttle-seconds = 0.2;
+    has Num $.throttle-seconds = 0.2e0.Num;
     has Str $.endpoint = 'https://secure.shippingapis.com/ShippingAPI.dll';
 
     method new(:$userid?, *%opts)
@@ -74,29 +84,20 @@ XML
             );
         }
 
-        self!parse-response($resp.content);
+        self.parse-response($resp.content);
     }
 
-    method !parse-response(Str $xml) returns Result
+    method parse-response(Str $xml) returns Result
     {
-        my $doc = xml-parse($xml);
-
-        if $doc<Error>:exists
+        if has-tag($xml, 'Error')
         {
-            my $num  = $doc<Error><Number>.Str;
-            my $desc = $doc<Error><Description>.Str;
-            die X::USPS::ZipPlus4.new(
-                message => "USPS error {$num}: {$desc}"
-            );
+            my $num  = tag-text($xml, 'Number');
+            my $desc = tag-text($xml, 'Description');
+            die X::USPS::ZipPlus4.new(message => "USPS error {$num}: {$desc}");
         }
 
-        my $addr = $doc<ZipCodeLookupResponse><Address>
-            // die X::USPS::ZipPlus4.new(
-                message => 'Malformed USPS response'
-            );
-
-        my $zip5 = $addr<Zip5>.Str;
-        my $zip4 = $addr<Zip4>.Str;
+        my $zip5 = tag-text($xml, 'Zip5');
+        my $zip4 = tag-text($xml, 'Zip4');
 
         unless $zip5.chars and $zip4.chars
         {
@@ -105,11 +106,16 @@ XML
             );
         }
 
+        my Str $street1 = tag-text($xml, 'Address2');  # street
+        my Str $street2 = tag-text($xml, 'Address1');  # unit
+        my Str $city    = tag-text($xml, 'City');
+        my Str $state   = tag-text($xml, 'State');
+
         Result.new(
-            street1 => $addr<Address2>.Str,
-            street2 => $addr<Address1>.Str,
-            city    => $addr<City>.Str,
-            state   => $addr<State>.Str,
+            street1 => $street1,
+            street2 => $street2,
+            city    => $city,
+            state   => $state,
             zip5    => $zip5,
             zip4    => $zip4,
         );

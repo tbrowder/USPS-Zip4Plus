@@ -9,7 +9,7 @@ my $client = USPS::ZipPlus4::Client.new(userid => 'TESTID');
 # success fixture
 {
     my $xml = slurp 't/data/success.xml';
-    my $res = $client."!parse-response"($xml);
+    my $res = $client.parse-response($xml);
 
     isa-ok $res, USPS::ZipPlus4::Result;
     is "{$res.zip5}-{$res.zip4}", '20500-0003',
@@ -20,9 +20,7 @@ my $client = USPS::ZipPlus4::Client.new(userid => 'TESTID');
 {
     my $xml = slurp 't/data/error.xml';
     throws-like
-        { $client."!parse-response"($xml) },
+        { $client.parse-response($xml) },
         X::USPS::ZipPlus4,
         'USPS error raised';
 }
-
-done-testing;
