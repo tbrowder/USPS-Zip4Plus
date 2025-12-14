@@ -1,6 +1,11 @@
 use Test;
 use USPS::ZipPlus4;
 
+# Run with:
+#   USPS_LIVE_TEST=1 zef test .
+# or:
+#   make test-live
+
 my $live = (%*ENV<USPS_LIVE_TEST> // '').Str.trim;
 my $id   = (%*ENV<USPS_WEBTOOLS_USERID> // '').Str.trim;
 
