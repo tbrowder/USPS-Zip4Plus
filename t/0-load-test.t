@@ -2,6 +2,8 @@ use Test;
 
 my @modules = <
     USPS::ZipPlus4
+    DBIish
+    DB::SQLite
 >;
 
 plan @modules.elems;

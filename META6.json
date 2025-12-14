@@ -6,6 +6,8 @@
   "build-depends": [
   ],
   "depends": [
+    "DBIish",
+    "DB::SQLite",
     "HTTP::UserAgent"
   ],
   "description": "Provides USPS validation of Zip+4 number given a valid US address with only a Zip number\n",
