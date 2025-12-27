@@ -25,7 +25,10 @@ class Result is export
 class Client is export
 {
     has Str $.userid;
+    has HTTP::UserAgent $!ua .= new;
+
     has Numeric $.throttle-seconds = 0.2; #e0.Num;
+
     has Str $.endpoint =
                 #'https://secure.shippingapis.com/ShippingAPI.dll'
                 'https://secure.shippingapis.com/ShippingAPI.dll'
@@ -48,78 +51,66 @@ class Client is export
         :$street! is copy,
         :$city! is copy,
         :$state! is copy,
-        :$street2 is copy = ''
+        :$street2 is copy = '',
+        :$debug,
     ) returns Result
     {
-        sleep $.throttle-seconds if $.throttle-seconds > 0;
+        # throttle (fixed sleep)
+        sleep $!throttle-seconds if $.throttle-seconds > 0;
 
-        # check for any ampersands:
-        my $err = 0;
-        for $street, $city, $state, $street2 -> $s {
-            if $s ~~ /'&'/ {
-                ++$err;
-            }
-        }
-        if $err {
-            die qq:to/HERE/;
-            FATAL: One or more address elements have an ampersand.
-                   Please file an issue if you need such a feature.
-            HERE
-        }
-
-        # the raw XML
-#        <ZipCodeLookupRequest USERID="{$!userid}">
-        my Str $xml = qq:to/HERE/;
-        <ZipCodeLookupRequest">
-          <Address ID="0">
-            <Address1>{$street2}</Address1>
-            <Address2>{$street}</Address2>
-            <City>{$city}</City>
-            <State>{$state}</State>
-            <Zip5></Zip5>
-            <Zip4></Zip4>
-          </Address>
+        my Str $xml = q:to/XML/;
+        <ZipCodeLookupRequest USERID="{ $!user-id }">
+        <Address ID="0">
+        <Address1>{$address1}</Address1>
+        <Address2>{$address2}</Address2>
+        <City>{$city}</City>
+        <State>{$state}</State>
+        <Zip5></Zip5>
+        <Zip4></Zip4>
+        </Address>
         </ZipCodeLookupRequest>
-        HERE
+        XML
 
-        say "DEBUG: raw xml: $xml";
+        my %query =
+        API => 'ZipCodeLookup',
+        XML => $xml;
 
-        # url encode it...
-        my Str $xml-enc = uri-escape($xml);
+        # debug (no USERID exposure)
+        if $debug {
+            say "DEBUG: USPS endpoint: $!endpoint";
+            say "DEBUG: USPS API: ZipCodeLookup";
 
-        say "DEBUG: uri-encoded xml: $xml-enc";
-
-        =begin comment
-        if $xml-enc ~~ /:i '%253C'/ {
-            say "DEBUG: found 253c";
-        }
-        else {
-            say "DEBUG: did NOT find 253c";
-        }
-        say "DEBUG early exit"; exit(1);
-        =end comment
-
-        my $ua = HTTP::UserAgent.new;
-        my $resp = $ua.get(
-            $.endpoint,
-            query => {
-                API => 'ZipCodeLookup',
-                XML => $xml-enc,
-            }
-        );
-
-        unless $resp.is-success
-        {
-            die X::USPS::ZipPlus4.new(
-                message => qq:to/HERE/;
-                           HTTP error {$resp.code}
-                                      {$resp.parse-response}
-                           HERE
-                                     #{$resp.content}
+            my Str $xml-sanitized = $xml.subst(
+                / USERID \= \" .*? \" /,
+                'USERID="REDACTED"',
+                :g
             );
-        }
 
-        self.parse-response($resp.content);
+            say "DEBUG: USPS XML (sanitized):\n$xml-sanitized";
+
+     } # end of method Zip4Lookup
+
+my $resp = $!ua.get(
+    $!endpoint,
+    query => %query
+);
+
+if !$resp.is-success {
+    die "USPS HTTP error {$resp.code}: {$resp.message}\n{$resp.content}";
+}
+
+my Str $body = $resp.content // '';
+
+if $body ~~ / '<Error>' / {
+    my Str $desc = '';
+    if $body ~~ / '<Description>' (.*?) '</Description>' / {
+        $desc = ~$0;
+    }
+    die "USPS error: $desc\n$body";
+}
+
+$body;
+
     }
 
     method parse-response(Str $xml) returns Result
