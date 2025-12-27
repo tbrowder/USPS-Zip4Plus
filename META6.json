@@ -8,6 +8,7 @@
   "depends": [
     "DBIish",
     "DB::SQLite",
+    "URI::Edcape:ver<0.3.8>",
     "HTTP::UserAgent"
   ],
   "description": "Provides USPS validation of Zip+4 number given a valid US address with only a Zip number",

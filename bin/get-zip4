@@ -12,6 +12,8 @@ my $client = USPS::ZipPlus4::Client.new(
 );
 isa-ok $client, USPS::ZipPlus4::Client, "valid base class object";
 
+#say "street: {$client.street}";
+
 # for testing
 my $res = $client.zip4-lookup(
     street  => "1600 Pennsylvania Ave NW",
@@ -22,3 +24,4 @@ my $res = $client.zip4-lookup(
 isa-ok $res, USPS::ZipPlus4::Response, "valid base class object";
 
 #say "{$res.zip5}-{$res.zip4}";
+say "{$res.parse-response}";

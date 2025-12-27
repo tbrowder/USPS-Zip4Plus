@@ -1,6 +1,7 @@
 # USPS_WEBTOOLS_USERID=48Y252PERSO45
 unit module USPS::ZipPlus4;
 
+use URI::Escape;
 use HTTP::UserAgent;
 use DBIish;
 use DB::SQLite;
@@ -11,7 +12,7 @@ class X::USPS::ZipPlus4 is Exception is export
     method gist { $.message }
 }
 
-class Result is export 
+class Result is export
 {
     has Str $.street1;
     has Str $.street2;
@@ -21,11 +22,14 @@ class Result is export
     has Str $.zip4;
 }
 
-class Client is export 
+class Client is export
 {
     has Str $.userid;
     has Numeric $.throttle-seconds = 0.2; #e0.Num;
-    has Str $.endpoint = 'https://secure.shippingapis.com/ShippingAPI.dll';
+    has Str $.endpoint =
+                #'https://secure.shippingapis.com/ShippingAPI.dll'
+                'https://secure.shippingapis.com/ShippingAPI.dll'
+            ;
 
     method new(Str :$userid!, *%opts)
     {
@@ -41,38 +45,77 @@ class Client is export
     }
 
     method zip4-lookup(
-        :$street!,
-        :$city!,
-        :$state!,
-        :$street2 = ''
+        :$street! is copy,
+        :$city! is copy,
+        :$state! is copy,
+        :$street2 is copy = ''
     ) returns Result
     {
         sleep $.throttle-seconds if $.throttle-seconds > 0;
 
-        my $xml = qq:to/XML/;
-<ZipCodeLookupRequest USERID="{$!userid}">
-  <Address ID="0">
-    <Address1>{$street2}</Address1>
-    <Address2>{$street}</Address2>
-    <City>{$city}</City>
-    <State>{$state}</State>
-  </Address>
-</ZipCodeLookupRequest>
-XML
+        # check for any ampersands:
+        my $err = 0;
+        for $street, $city, $state, $street2 -> $s {
+            if $s ~~ /'&'/ {
+                ++$err;
+            }
+        }
+        if $err {
+            die qq:to/HERE/;
+            FATAL: One or more address elements have an ampersand.
+                   Please file an issue if you need such a feature.
+            HERE
+        }
+
+        # the raw XML
+#        <ZipCodeLookupRequest USERID="{$!userid}">
+        my Str $xml = qq:to/HERE/;
+        <ZipCodeLookupRequest">
+          <Address ID="0">
+            <Address1>{$street2}</Address1>
+            <Address2>{$street}</Address2>
+            <City>{$city}</City>
+            <State>{$state}</State>
+            <Zip5></Zip5>
+            <Zip4></Zip4>
+          </Address>
+        </ZipCodeLookupRequest>
+        HERE
+
+        say "DEBUG: raw xml: $xml";
+
+        # url encode it...
+        my Str $xml-enc = uri-escape($xml);
+
+        say "DEBUG: uri-encoded xml: $xml-enc";
+
+        =begin comment
+        if $xml-enc ~~ /:i '%253C'/ {
+            say "DEBUG: found 253c";
+        }
+        else {
+            say "DEBUG: did NOT find 253c";
+        }
+        say "DEBUG early exit"; exit(1);
+        =end comment
 
         my $ua = HTTP::UserAgent.new;
         my $resp = $ua.get(
             $.endpoint,
             query => {
                 API => 'ZipCodeLookup',
-                XML => $xml,
+                XML => $xml-enc,
             }
         );
 
         unless $resp.is-success
         {
             die X::USPS::ZipPlus4.new(
-                message => "HTTP error {$resp.code} {$resp.content}"
+                message => qq:to/HERE/;
+                           HTTP error {$resp.code}
+                                      {$resp.parse-response}
+                           HERE
+                                     #{$resp.content}
             );
         }
 
@@ -114,7 +157,7 @@ XML
     }
 }
 
-class Cache::SQLite is export 
+class Cache::SQLite is export
 {
     has Str $.path;
     has $.dbh;
