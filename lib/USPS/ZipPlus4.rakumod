@@ -1,16 +1,17 @@
+# USPS_WEBTOOLS_USERID=48Y252PERSO45
 unit module USPS::ZipPlus4;
 
 use HTTP::UserAgent;
 use DBIish;
 use DB::SQLite;
 
-class X::USPS::ZipPlus4 is Exception
+class X::USPS::ZipPlus4 is Exception is export
 {
     has Str $.message;
     method gist { $.message }
 }
 
-class Result
+class Result is export 
 {
     has Str $.street1;
     has Str $.street2;
@@ -20,13 +21,13 @@ class Result
     has Str $.zip4;
 }
 
-class Client
+class Client is export 
 {
     has Str $.userid;
-    has Num $.throttle-seconds = 0.2e0.Num;
+    has Numeric $.throttle-seconds = 0.2; #e0.Num;
     has Str $.endpoint = 'https://secure.shippingapis.com/ShippingAPI.dll';
 
-    method new(:$userid?, *%opts)
+    method new(Str :$userid!, *%opts)
     {
         my $id = $userid // %*ENV<USPS_WEBTOOLS_USERID>;
         unless $id.defined and $id.chars
@@ -71,7 +72,7 @@ XML
         unless $resp.is-success
         {
             die X::USPS::ZipPlus4.new(
-                message => "HTTP error {$resp.code}"
+                message => "HTTP error {$resp.code} {$resp.content}"
             );
         }
 
@@ -113,7 +114,7 @@ XML
     }
 }
 
-class Cache::SQLite
+class Cache::SQLite is export 
 {
     has Str $.path;
     has $.dbh;

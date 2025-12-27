@@ -18,7 +18,7 @@ unless $live eq '1' and $id.chars
 
 plan 2;
 
-my $client = USPS::ZipPlus4::Client.new(throttle-seconds => 0.2e0);
+my $client = USPS::ZipPlus4::Client.new(throttle-seconds => 0.2);
 
 my $res = $client.zip4-lookup(
     street => '114 Shoreline Dr',

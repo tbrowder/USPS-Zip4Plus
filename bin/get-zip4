@@ -1,0 +1,24 @@
+#!/usr/bin/env raku
+
+use Test;
+
+# USPS_WEBTOOLS_USERID=48Y252PERSO45
+
+use USPS::ZipPlus4;
+
+my $client = USPS::ZipPlus4::Client.new(
+    userid => %*ENV<USPS_WEBTOOLS_USERID>,
+    throttle-seconds => 0.2,
+);
+isa-ok $client, USPS::ZipPlus4::Client, "valid base class object";
+
+# for testing
+my $res = $client.zip4-lookup(
+    street  => "1600 Pennsylvania Ave NW",
+    city    => "Washington",
+    state   => "DC",
+    street2 => "",
+);
+isa-ok $res, USPS::ZipPlus4::Response, "valid base class object";
+
+#say "{$res.zip5}-{$res.zip4}";

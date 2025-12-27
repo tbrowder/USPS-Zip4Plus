@@ -1,0 +1,5 @@
+https://secure.shippingapis.com/ShippingAPI.dll?API=
+
+
+DEFAULT_USPS_URL = "https://production.shippingapis.com/ShippingAPI.dll"
+
